@@ -1,0 +1,37 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="sms_switch"
+        android:summary="@string/pref_description_sms_forwarding"
+        android:title="@string/pref_title_sms_forwarding"/>
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="phone"
+        android:key="forward_to_number"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_forward_to"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="telegram_switch"
+        android:summary="@string/pref_description_telegram_forwarding"
+        android:title="@string/pref_title_telegram_forwarding"/>
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="text"
+        android:key="forward_to_channel"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_send_to"/>
+
+</PreferenceScreen>

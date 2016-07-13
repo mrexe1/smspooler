@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SMSPooler</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_sms_forwarding">Enable SMS Forwarding</string>
+    <string name="pref_description_sms_forwarding">Contacts for people to forward sms</string>
+
+    <string name="pref_title_forward_to">Forward To</string>
+
+    <string name="pref_title_telegram_forwarding">Enable Telegram Forwarding</string>
+    <string name="pref_description_telegram_forwarding">Channel for people to forward sms</string>
+
+    <string name="pref_title_send_to">Send To</string>
+
+    <string name="setting">Settings</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="rationale_camera">This app needs access to your camera so you can take pictures.</string>
+    <string name="rationale_location_contacts">This app needs access to your location and contacts to know where and who you are.</string>
+    <string name="rationale_sms">This app needs access to your sms to process sms content.</string>
+    <string name="rationale_internet">This app needs access to your internet to post messages.</string>
+    <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>
+</resources>
