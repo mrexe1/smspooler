@@ -15,6 +15,8 @@
     <string name="pref_description_telegram_forwarding">Channel for people to forward sms</string>
 
     <string name="pref_title_send_to">Send To</string>
+    <string name="pref_title_send_bot">Send Bot</string>
+
 
     <string name="setting">Settings</string>
     <string name="cancel">Cancel</string>

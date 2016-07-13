@@ -22,24 +22,22 @@ public class SMSReceiver extends BroadcastReceiver {
     public static final String SMS_EXTRA_NAME = "pdus";
     public static final byte[] PASSWORD = new byte[]{0x20, 0x32, 0x34, 0x47,
             (byte) 0x84, 0x33, 0x58};
-    public static final String DEFAULT_SMS_DESTINATION = "9741155365";
-    public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
+    private static final String DEFAULT_SMS_DESTINATION = "9741155365";
+    private static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
+    private static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
+    private String telegramBaseURL = "https://api.telegram.org/";
+
     private static final String TAG = "SMSReceiver";
     final OkHttpClient client = new OkHttpClient();
-    private String botId = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
-    private String telegramBaseURL = "https://api.telegram.org/";
 
     public void onReceive(Context context, Intent intent) {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String forwardToNumber = SP.getString("forward_to_number", "NA");
-        forwardToNumber = forwardToNumber == null ? DEFAULT_SMS_DESTINATION : forwardToNumber;
-        String forwardToChannel = SP.getString("forward_to_channel", "NA");
-        forwardToChannel = forwardToChannel == null ? DEFAULT_CHANNEL_DESTINATION : forwardToChannel;
+        String forwardToNumber = SP.getString("forward_to_number", DEFAULT_SMS_DESTINATION);
+        String forwardToChannel = SP.getString("forward_to_channel", DEFAULT_CHANNEL_DESTINATION);
+        String forwardBot = SP.getString("forward_bot", DEFAULT_BOT);
         Boolean smsSwitch = SP.getBoolean("sms_switch", false);
-        smsSwitch = smsSwitch == null ? false : smsSwitch;
         Boolean telegramSwitch = SP.getBoolean("telegram_switch", false);
-        telegramSwitch = telegramSwitch == null ? false : telegramSwitch;
 
         Bundle extras = intent.getExtras();
 
@@ -63,7 +61,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     }
                 }
                 if (telegramSwitch) {
-                    sendTelegram(context, message, forwardToChannel);
+                    sendTelegram(context, message, forwardBot, forwardToChannel);
                 }
             }
         }
@@ -76,14 +74,14 @@ public class SMSReceiver extends BroadcastReceiver {
                 .show();
     }
 
-    public void sendTelegram(final Context context, final String message, final String forwardToChannel) {
+    public void sendTelegram(final Context context, final String message, final String forwardBot, final String forwardToChannel) {
         // the request
         new AsyncTask<String, Integer, String>() {
             @Override
             protected String doInBackground(String... params) {
                 String msg = "";
                 try {
-                    String url = telegramBaseURL + botId + "/sendMessage?chat_id=" + forwardToChannel + "&text=" + URLEncoder.encode(message, "UTF-8");
+                    String url = telegramBaseURL + forwardBot + "/sendMessage?chat_id=" + forwardToChannel + "&text=" + URLEncoder.encode(message, "UTF-8");
                     final Request request = new Request.Builder()
                             .url(url)
                             .build();
