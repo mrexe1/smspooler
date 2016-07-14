@@ -12,6 +12,13 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
+import org.telegram.messenger.response.*;
+import org.telegram.messenger.*;
+
 import java.net.URLEncoder;
 
 import okhttp3.OkHttpClient;
@@ -26,6 +33,11 @@ public class SMSReceiver extends BroadcastReceiver {
     private static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
     private static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
     private String telegramBaseURL = "https://api.telegram.org/";
+    private final Gson gson = gson();
+
+    private static Gson gson() {
+        return new Gson();
+    }
 
     private static final String TAG = "SMSReceiver";
     final OkHttpClient client = new OkHttpClient();
@@ -85,25 +97,43 @@ public class SMSReceiver extends BroadcastReceiver {
                     final Request request = new Request.Builder()
                             .url(url)
                             .build();
+                    Log.i(TAG, "Invoke - " + url);
 
                     Response response = client.newCall(request).execute();
                     msg = response.body().string();
                 } catch (Exception e) {
                     Log.e(TAG, e.getMessage());
+                    Log.e(TAG, Log.getStackTraceString(e));
                 }
                 return msg;
             }
 
             @Override
+            public String toString() {
+                return "$classname{}";
+            }
+
+            @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
-                Log.e("Response - ", "" + result);
-                if (result.contains("ok")) {
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT)
-                            .show();
+                if (!"".equals(result)) {
+                    try {
+                        SendResponse resultGson = gson.fromJson(result, SendResponse.class);
+                        JSONObject resultJson = new JSONObject(result);
+                        if (resultJson.has("error_code")) {
+                            Log.e(TAG, resultJson.getString("description"));
+                        } else {
+                            Log.i(TAG, result);
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                        Log.e(TAG, Log.getStackTraceString(e));
+                    }
                 }
             }
         }.execute();
-
     }
 }
