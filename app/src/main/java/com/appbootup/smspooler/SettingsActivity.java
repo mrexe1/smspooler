@@ -18,8 +18,11 @@ import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.List;
 
+import io.fabric.sdk.android.Fabric;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -105,6 +108,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(true)
+                .build();
+        Fabric.with(fabric);
         setupActionBar();
         smsTask();
         internetTask();
