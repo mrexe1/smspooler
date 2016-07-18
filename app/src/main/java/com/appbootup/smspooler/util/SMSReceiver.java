@@ -36,10 +36,7 @@ import okhttp3.OkHttpClient;
 
 public class SMSReceiver extends BroadcastReceiver {
     public static final String SMS_EXTRA_NAME = "pdus";
-    public static final String DEFAULT_SMS_DESTINATION = "9741155365";
-    public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
     public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
-    public static final String DEFAULT_ID_DESTINATION = "160437079";
     public static final String telegramBaseURL = "https://api.telegram.org/";
     public final Gson gson = gson();
 
@@ -54,11 +51,11 @@ public class SMSReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String forwardToNumber = SP.getString("forward_to_number", DEFAULT_SMS_DESTINATION);
-        String forwardToChannel = SP.getString("forward_to_channel", "");
-        String forwardToID1 = SP.getString("forward_to_id1", "");
-        String forwardToID2 = SP.getString("forward_to_id2", "");
-        String forwardBot = SP.getString("forward_bot", DEFAULT_BOT);
+        String forwardToNumber = SP.getString("forward_to_number", "").trim();
+        String forwardToChannel = SP.getString("forward_to_channel", "").trim();
+        String forwardToID1 = SP.getString("forward_to_id1", "").trim();
+        String forwardToID2 = SP.getString("forward_to_id2", "").trim();
+        String forwardBot = SP.getString("forward_bot", DEFAULT_BOT).trim();
         Boolean smsSwitch = SP.getBoolean("sms_switch", false);
         Boolean telegramSwitch = SP.getBoolean("telegram_switch", false);
 
@@ -79,18 +76,18 @@ public class SMSReceiver extends BroadcastReceiver {
 
                 if (BankingSMSRegexConstants.smsBankingAddressCodes
                         .contains(address)) {
-                    if (smsSwitch) {
+                    if (smsSwitch && !"".equals(forwardToNumber))){
                         sendSMS(context, message, forwardToNumber);
                     }
                 }
                 if (telegramSwitch) {
-                    if(!"".equals(forwardToChannel)) {
+                    if (!"".equals(forwardToChannel)) {
                         sendTelegram(context, message, forwardBot, forwardToChannel);
                     }
-                    if(!"".equals(forwardToID1)) {
+                    if (!"".equals(forwardToID1)) {
                         sendTelegram(context, message, forwardBot, forwardToID1);
                     }
-                    if(!"".equals(forwardToID2)) {
+                    if (!"".equals(forwardToID2)) {
                         sendTelegram(context, message, forwardBot, forwardToID2);
                     }
                 }
