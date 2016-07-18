@@ -76,7 +76,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
                 if (BankingSMSRegexConstants.smsBankingAddressCodes
                         .contains(address)) {
-                    if (smsSwitch && !"".equals(forwardToNumber))){
+                    if (smsSwitch && !"".equals(forwardToNumber)){
                         sendSMS(context, message, forwardToNumber);
                     }
                 }
