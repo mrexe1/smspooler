@@ -216,6 +216,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("forward_to_number"));
             bindPreferenceSummaryToValue(findPreference("forward_to_channel"));
+            bindPreferenceSummaryToValue(findPreference("forward_to_id1"));
+            bindPreferenceSummaryToValue(findPreference("forward_to_id2"));
             bindPreferenceSummaryToValue(findPreference("forward_bot"));
         }
 

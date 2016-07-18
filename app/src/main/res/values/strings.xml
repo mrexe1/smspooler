@@ -12,7 +12,7 @@
     <string name="pref_title_forward_to">Forward To</string>
 
     <string name="pref_title_telegram_forwarding">Enable Telegram Forwarding</string>
-    <string name="pref_description_telegram_forwarding">Channel for people to forward sms</string>
+    <string name="pref_description_telegram_forwarding">Telegram IDs for people to forward sms</string>
 
     <string name="pref_title_send_to">Send To</string>
     <string name="pref_title_send_bot">Send Bot</string>

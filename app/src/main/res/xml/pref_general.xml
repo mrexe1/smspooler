@@ -33,6 +33,24 @@
     <EditTextPreference
         android:capitalize="words"
         android:inputType="text"
+        android:key="forward_to_id1"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_send_to"/>
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="text"
+        android:key="forward_to_id2"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_send_to"/>
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="text"
         android:key="forward_bot"
         android:maxLines="1"
         android:selectAllOnFocus="true"

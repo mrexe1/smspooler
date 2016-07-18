@@ -11,17 +11,22 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -34,6 +39,7 @@ public class SMSReceiver extends BroadcastReceiver {
     public static final String DEFAULT_SMS_DESTINATION = "9741155365";
     public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
     public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
+    public static final String DEFAULT_ID_DESTINATION = "160437079";
     public static final String telegramBaseURL = "https://api.telegram.org/";
     public final Gson gson = gson();
 
@@ -49,7 +55,9 @@ public class SMSReceiver extends BroadcastReceiver {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
 
         String forwardToNumber = SP.getString("forward_to_number", DEFAULT_SMS_DESTINATION);
-        String forwardToChannel = SP.getString("forward_to_channel", DEFAULT_CHANNEL_DESTINATION);
+        String forwardToChannel = SP.getString("forward_to_channel", "");
+        String forwardToID1 = SP.getString("forward_to_id1", "");
+        String forwardToID2 = SP.getString("forward_to_id2", "");
         String forwardBot = SP.getString("forward_bot", DEFAULT_BOT);
         Boolean smsSwitch = SP.getBoolean("sms_switch", false);
         Boolean telegramSwitch = SP.getBoolean("telegram_switch", false);
@@ -76,7 +84,15 @@ public class SMSReceiver extends BroadcastReceiver {
                     }
                 }
                 if (telegramSwitch) {
-                    sendTelegram(context, message, forwardBot, forwardToChannel);
+                    if(!"".equals(forwardToChannel)) {
+                        sendTelegram(context, message, forwardBot, forwardToChannel);
+                    }
+                    if(!"".equals(forwardToID1)) {
+                        sendTelegram(context, message, forwardBot, forwardToID1);
+                    }
+                    if(!"".equals(forwardToID2)) {
+                        sendTelegram(context, message, forwardBot, forwardToID2);
+                    }
                 }
             }
         }
@@ -89,36 +105,36 @@ public class SMSReceiver extends BroadcastReceiver {
                 .show();
     }
 
-    public void sendTelegram(final Context context, final String message, final String forwardBot, final String forwardToChannel) {
+    public void sendTelegram(final Context context, final String message, final String forwardBot, final String forwardTo) {
         RequestQueue queue = Volley.newRequestQueue(context);
         try {
             String encodedMessage = URLEncoder.encode(message, "UTF-8");
-            final String url = telegramBaseURL + forwardBot + "/sendMessage?chat_id=" + forwardToChannel + "&text=" + encodedMessage;
+            final String url = telegramBaseURL + forwardBot + "/sendMessage?chat_id=" + forwardTo + "&text=" + encodedMessage;
 
             JsonObjectRequest jsonObjRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    Log.i(TAG, response.toString());
-                    try {
-                        if (response.has("error_code")) {
-                            Log.e(TAG, response.getString("description"));
-                            Crashlytics.logException(new Throwable(response.getString("description")));
-                        } else {
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT)
-                                    .show();
-                        }
-                    } catch (JSONException e) {
-                        Crashlytics.logException(new RuntimeException(e));
-                        Log.e(TAG, e.getMessage());
-                        Log.e(TAG, Log.getStackTraceString(e));
-                    }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT)
+                            .show();
                 }
             }, new ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, error.getMessage());
-                    Log.e(TAG, Log.getStackTraceString(error));
-                    Crashlytics.logException(new RuntimeException(error));
+                    String message = new String(error.networkResponse.data);
+                    if (message.contains("error_code")) {
+                        Log.e(TAG, message);
+                        Crashlytics.logException(new Throwable(message));
+                    }
+                    if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                        Log.e(TAG, error.toString());
+                        Log.e(TAG, Log.getStackTraceString(error));
+                        //Toast.makeText(context, context.getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+                        Crashlytics.logException(new RuntimeException(error));
+                    } else if (error instanceof AuthFailureError || error instanceof ServerError || error instanceof NetworkError || error instanceof ParseError) {
+                        Log.e(TAG, error.toString());
+                        Log.e(TAG, Log.getStackTraceString(error));
+                        Crashlytics.logException(new RuntimeException(error));
+                    }
                 }
             });
             jsonObjRequest.setRetryPolicy(new DefaultRetryPolicy(1000,
