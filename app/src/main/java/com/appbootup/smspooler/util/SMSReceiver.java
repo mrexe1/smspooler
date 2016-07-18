@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
@@ -12,28 +11,32 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.telegram.messenger.response.*;
-import org.telegram.messenger.*;
-
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class SMSReceiver extends BroadcastReceiver {
     public static final String SMS_EXTRA_NAME = "pdus";
-    public static final byte[] PASSWORD = new byte[]{0x20, 0x32, 0x34, 0x47,
-            (byte) 0x84, 0x33, 0x58};
-    private static final String DEFAULT_SMS_DESTINATION = "9741155365";
-    private static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
-    private static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
-    private String telegramBaseURL = "https://api.telegram.org/";
-    private final Gson gson = gson();
+    public static final String DEFAULT_SMS_DESTINATION = "9741155365";
+    public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
+    public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
+    public static final String telegramBaseURL = "https://api.telegram.org/";
+    public final Gson gson = gson();
+
 
     private static Gson gson() {
         return new Gson();
@@ -61,7 +64,7 @@ public class SMSReceiver extends BroadcastReceiver {
             for (int i = 0; i < smsExtra.length; ++i) {
                 SmsMessage sms = SmsMessage.createFromPdu((byte[]) smsExtra[i]);
 
-                String body = sms.getMessageBody().toString();
+                String body = sms.getMessageBody();
                 String address = sms.getOriginatingAddress();
                 message += "[SMS from " + address + "] \n";
                 message += body + "\n";
@@ -87,53 +90,45 @@ public class SMSReceiver extends BroadcastReceiver {
     }
 
     public void sendTelegram(final Context context, final String message, final String forwardBot, final String forwardToChannel) {
-        // the request
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                String msg = "";
-                try {
-                    String url = telegramBaseURL + forwardBot + "/sendMessage?chat_id=" + forwardToChannel + "&text=" + URLEncoder.encode(message, "UTF-8");
-                    final Request request = new Request.Builder()
-                            .url(url)
-                            .build();
-                    Log.i(TAG, "Invoke - " + url);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        try {
+            String encodedMessage = URLEncoder.encode(message, "UTF-8");
+            final String url = telegramBaseURL + forwardBot + "/sendMessage?chat_id=" + forwardToChannel + "&text=" + encodedMessage;
 
-                    Response response = client.newCall(request).execute();
-                    msg = response.body().string();
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
-                return msg;
-            }
-
-            @Override
-            public String toString() {
-                return "$classname{}";
-            }
-
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                if (!"".equals(result)) {
+            JsonObjectRequest jsonObjRequest = new JsonObjectRequest(Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.i(TAG, response.toString());
                     try {
-                        SendResponse resultGson = gson.fromJson(result, SendResponse.class);
-                        JSONObject resultJson = new JSONObject(result);
-                        if (resultJson.has("error_code")) {
-                            Log.e(TAG, resultJson.getString("description"));
+                        if (response.has("error_code")) {
+                            Log.e(TAG, response.getString("description"));
+                            Crashlytics.logException(new Throwable(response.getString("description")));
                         } else {
-                            Log.i(TAG, result);
                             Toast.makeText(context, message, Toast.LENGTH_SHORT)
                                     .show();
                         }
-
-                    } catch (Exception e) {
+                    } catch (JSONException e) {
+                        Crashlytics.logException(new RuntimeException(e));
                         Log.e(TAG, e.getMessage());
                         Log.e(TAG, Log.getStackTraceString(e));
                     }
                 }
-            }
-        }.execute();
+            }, new ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, error.getMessage());
+                    Log.e(TAG, Log.getStackTraceString(error));
+                    Crashlytics.logException(new RuntimeException(error));
+                }
+            });
+            jsonObjRequest.setRetryPolicy(new DefaultRetryPolicy(1000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            queue.add(jsonObjRequest);
+        } catch (UnsupportedEncodingException e) {
+            Crashlytics.logException(new RuntimeException(e));
+            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
     }
 }

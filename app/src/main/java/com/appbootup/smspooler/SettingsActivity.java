@@ -22,10 +22,8 @@ import com.crashlytics.android.Crashlytics;
 
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
-
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -43,7 +41,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
     private static final int RC_SMS_PERM = 1;
     private static final int RC_INTERNET_PERM = 2;
     private static final String TAG = "SettingsActivity";
-
+    public static final String SMS_EXTRA_NAME = "pdus";
+    public static final String DEFAULT_SMS_DESTINATION = "9741155365";
+    public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
+    public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
+    public static final String telegramBaseURL = "https://api.telegram.org/";
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -108,11 +110,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final Fabric fabric = new Fabric.Builder(this)
-                .kits(new Crashlytics())
-                .debuggable(true)
-                .build();
-        Fabric.with(fabric);
         setupActionBar();
         smsTask();
         internetTask();
