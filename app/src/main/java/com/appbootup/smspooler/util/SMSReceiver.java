@@ -1,11 +1,15 @@
 package com.appbootup.smspooler.util;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -71,28 +75,58 @@ public class SMSReceiver extends BroadcastReceiver {
 
                 String body = sms.getMessageBody();
                 String address = sms.getOriginatingAddress();
-                message += "[SMS from " + address + "] \n";
-                message += body + "\n";
 
-                if (BankingSMSRegexConstants.smsBankingAddressCodes
-                        .contains(address)) {
-                    if (smsSwitch && !"".equals(forwardToNumber)){
-                        sendSMS(context, message, forwardToNumber);
+                if (!body.startsWith("[SMSPooler")) {
+                    String name = "";
+                    if (address.matches(".*\\d+.*")) {
+                        name = getContactDisplayNameByNumber(context, address);
                     }
-                }
-                if (telegramSwitch) {
-                    if (!"".equals(forwardToChannel)) {
-                        sendTelegram(context, message, forwardBot, forwardToChannel);
+
+                    message += "[SMSPooler from " + name + " " + address + "] \n";
+
+                    message += body + "\n";
+
+                    if (BankingSMSRegexConstants.smsBankingAddressCodes
+                            .contains(address)) {
+                        if (smsSwitch && !"".equals(forwardToNumber)) {
+                            sendSMS(context, message, forwardToNumber);
+                        }
                     }
-                    if (!"".equals(forwardToID1)) {
-                        sendTelegram(context, message, forwardBot, forwardToID1);
-                    }
-                    if (!"".equals(forwardToID2)) {
-                        sendTelegram(context, message, forwardBot, forwardToID2);
+                    if (telegramSwitch) {
+                        if (!"".equals(forwardToChannel)) {
+                            sendTelegram(context, message, forwardBot, forwardToChannel);
+                        }
+                        if (!"".equals(forwardToID1)) {
+                            sendTelegram(context, message, forwardBot, forwardToID1);
+                        }
+                        if (!"".equals(forwardToID2)) {
+                            sendTelegram(context, message, forwardBot, forwardToID2);
+                        }
                     }
                 }
             }
         }
+    }
+
+    public String getContactDisplayNameByNumber(Context context, String number) {
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+        String name = "?";
+
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor contactLookup = contentResolver.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+
+        try {
+            if (contactLookup != null && contactLookup.getCount() > 0) {
+                contactLookup.moveToNext();
+                name = contactLookup.getString(contactLookup.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+            }
+        } finally {
+            if (contactLookup != null) {
+                contactLookup.close();
+            }
+        }
+
+        return name;
     }
 
     public void sendSMS(final Context context, String message, String number) {

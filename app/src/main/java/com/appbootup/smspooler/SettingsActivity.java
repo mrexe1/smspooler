@@ -18,8 +18,6 @@ import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.crashlytics.android.Crashlytics;
-
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -40,6 +38,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
 
     private static final int RC_SMS_PERM = 1;
     private static final int RC_INTERNET_PERM = 2;
+    private static final int RC_CONTACT_PERM = 3;
+
     private static final String TAG = "SettingsActivity";
     public static final String SMS_EXTRA_NAME = "pdus";
     public static final String DEFAULT_SMS_DESTINATION = "9741155365";
@@ -113,6 +113,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
         setupActionBar();
         smsTask();
         internetTask();
+        contactTask();
     }
 
     /**
@@ -183,7 +184,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_sms),
                     RC_SMS_PERM, Manifest.permission.READ_SMS);
         } else {
-            Log.d(TAG, "onPermissionsAvailable.");
+            Log.d(TAG, "READ_SMS onPermissionsAvailable.");
         }
     }
 
@@ -194,7 +195,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
             EasyPermissions.requestPermissions(this, getString(R.string.rationale_internet),
                     RC_INTERNET_PERM, Manifest.permission.INTERNET);
         } else {
-            Log.d(TAG, "onPermissionsAvailable.");
+            Log.d(TAG, "INTERNET onPermissionsAvailable.");
+        }
+    }
+
+    @AfterPermissionGranted(RC_CONTACT_PERM)
+    private void contactTask() {
+        if (!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CONTACTS)) {
+            // Request one permission
+            EasyPermissions.requestPermissions(this, getString(R.string.rationale_contacts),
+                    RC_CONTACT_PERM, Manifest.permission.READ_CONTACTS);
+        } else {
+            Log.d(TAG, "READ_CONTACTS onPermissionsAvailable.");
         }
     }
 
