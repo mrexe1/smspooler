@@ -27,4 +27,5 @@
     <string name="rationale_internet">This app needs access to your internet to post messages.</string>
     <string name="rationale_contacts">This app needs access to your contacts to indentify message sender.</string>
     <string name="rationale_ask_again">This app may not work correctly without the requested permissions. Open the app settings screen to modify app permissions.</string>
+    <string name="io.branch.apiKey" translatable="false">key_live_kah950jnQnTrcEKkfog9VgdnvEcdwmZ7</string>
 </resources>
