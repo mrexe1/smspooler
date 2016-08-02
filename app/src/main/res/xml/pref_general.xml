@@ -17,6 +17,12 @@
 
     <SwitchPreference
         android:defaultValue="true"
+        android:key="cloud_switch"
+        android:summary="@string/pref_description_cloud_forwarding"
+        android:title="@string/pref_title_cloud_forwarding"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
         android:key="telegram_switch"
         android:summary="@string/pref_description_telegram_forwarding"
         android:title="@string/pref_title_telegram_forwarding"/>

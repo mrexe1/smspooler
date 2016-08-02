@@ -66,6 +66,10 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
+    <string name="pref_title_cloud_forwarding">Enable Cloud Forwarding</string>
+    <string name="pref_description_cloud_forwarding">Contacts for people to share in cloud</string>
+
+
     <string name="pref_title_sms_forwarding">Enable SMS Forwarding</string>
     <string name="pref_description_sms_forwarding">Contacts for people to forward sms</string>
 

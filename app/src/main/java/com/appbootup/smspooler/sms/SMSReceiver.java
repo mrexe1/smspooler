@@ -29,6 +29,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
@@ -42,9 +46,16 @@ public class SMSReceiver extends BroadcastReceiver {
     public static final String SMS_EXTRA_NAME = "pdus";
     public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
     public static final String telegramBaseURL = "https://api.telegram.org/";
+    public static final String MESSAGES_CHILD = "messages";
+    public static final String ANONYMOUS = "anonymous";
     private static final String TAG = "SMSReceiver";
     public final Gson gson = gson();
     final OkHttpClient client = new OkHttpClient();
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mFirebaseDatabaseReference;
+    private String mUsername;
+    private String mPhotoUrl;
 
     private static Gson gson() {
         return new Gson();
@@ -52,6 +63,18 @@ public class SMSReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mUsername = ANONYMOUS;
+        // Initialize Firebase Auth
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        if (mFirebaseUser != null) {
+            // Not signed in, launch the Sign In activity
+            mUsername = mFirebaseUser.getDisplayName();
+            if (mFirebaseUser.getPhotoUrl() != null) {
+                mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
+            }
+        }
 
         String forwardToNumber = SP.getString("forward_to_number", "").trim();
         String forwardToChannel = SP.getString("forward_to_channel", "").trim();
@@ -60,6 +83,7 @@ public class SMSReceiver extends BroadcastReceiver {
         String forwardBot = SP.getString("forward_bot", DEFAULT_BOT).trim();
         Boolean smsSwitch = SP.getBoolean("sms_switch", false);
         Boolean telegramSwitch = SP.getBoolean("telegram_switch", false);
+        Boolean firebaseSwitch = SP.getBoolean("firebase_switch", true);
 
         Bundle extras = intent.getExtras();
 
@@ -100,6 +124,14 @@ public class SMSReceiver extends BroadcastReceiver {
                         if (!"".equals(forwardToID2)) {
                             sendTelegram(context, message, forwardBot, forwardToID2);
                         }
+                    }
+                    if (firebaseSwitch) {
+                        SMSMessage smsMessage = new
+                                SMSMessage(message,
+                                mUsername,
+                                mPhotoUrl);
+                        mFirebaseDatabaseReference.child(MESSAGES_CHILD)
+                                .push().setValue(smsMessage);
                     }
                 }
             }
@@ -170,6 +202,7 @@ public class SMSReceiver extends BroadcastReceiver {
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(jsonObjRequest);
+
         } catch (UnsupportedEncodingException e) {
             Crashlytics.logException(new RuntimeException(e));
             Log.e(TAG, e.getMessage());
