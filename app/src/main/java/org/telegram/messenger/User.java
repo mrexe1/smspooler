@@ -31,11 +31,12 @@ public class User {
         User user = (User) o;
 
         if (id != null ? !id.equals(user.id) : user.id != null) return false;
-        if (first_name != null ? !first_name.equals(user.first_name) : user.first_name != null) return false;
-        if (last_name != null ? !last_name.equals(user.last_name) : user.last_name != null) return false;
-        if (username != null ? !username.equals(user.username) : user.username != null) return false;
+        if (first_name != null ? !first_name.equals(user.first_name) : user.first_name != null)
+            return false;
+        if (last_name != null ? !last_name.equals(user.last_name) : user.last_name != null)
+            return false;
+        return username != null ? username.equals(user.username) : user.username == null;
 
-        return true;
     }
 
     @Override

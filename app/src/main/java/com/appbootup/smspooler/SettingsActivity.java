@@ -4,7 +4,6 @@ package com.appbootup.smspooler;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,17 +35,15 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity implements EasyPermissions.PermissionCallbacks {
 
-    private static final int RC_SMS_PERM = 1;
-    private static final int RC_INTERNET_PERM = 2;
-    private static final int RC_CONTACT_PERM = 3;
-
-    private static final String TAG = "SettingsActivity";
     public static final String SMS_EXTRA_NAME = "pdus";
     public static final String DEFAULT_SMS_DESTINATION = "9741155365";
     public static final String DEFAULT_CHANNEL_DESTINATION = "@summerishere";
     public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
     public static final String telegramBaseURL = "https://api.telegram.org/";
-
+    private static final int RC_SMS_PERM = 1;
+    private static final int RC_INTERNET_PERM = 2;
+    private static final int RC_CONTACT_PERM = 3;
+    private static final String TAG = "SettingsActivity";
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -210,6 +207,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -231,16 +243,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Eas
             bindPreferenceSummaryToValue(findPreference("forward_to_id1"));
             bindPreferenceSummaryToValue(findPreference("forward_to_id2"));
             bindPreferenceSummaryToValue(findPreference("forward_bot"));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
         }
     }
 }

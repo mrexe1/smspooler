@@ -1,4 +1,4 @@
-package com.appbootup.smspooler.util;
+package com.appbootup.smspooler.sms;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -42,15 +42,13 @@ public class SMSReceiver extends BroadcastReceiver {
     public static final String SMS_EXTRA_NAME = "pdus";
     public static final String DEFAULT_BOT = "bot225799024:AAEul4xvfHamRNRW8HzTzqimHbWIol-Jex8";
     public static final String telegramBaseURL = "https://api.telegram.org/";
+    private static final String TAG = "SMSReceiver";
     public final Gson gson = gson();
-
+    final OkHttpClient client = new OkHttpClient();
 
     private static Gson gson() {
         return new Gson();
     }
-
-    private static final String TAG = "SMSReceiver";
-    final OkHttpClient client = new OkHttpClient();
 
     public void onReceive(Context context, Intent intent) {
         SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);

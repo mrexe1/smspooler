@@ -4,20 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class Chat {
 
-    public enum Type {
-        @SerializedName("private")Private, group, supergroup, channel
-    }
-
     private Long id;
     private Type type;
-
     //Private
     private String first_name;
     private String last_name;
-
     //Private and Channel
     private String username;
-
     //Channel and Group
     private String title;
 
@@ -78,5 +71,9 @@ public class Chat {
                 ", username='" + username + '\'' +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    public enum Type {
+        @SerializedName("private")Private, group, supergroup, channel
     }
 }

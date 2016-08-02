@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "713671035185",
+    "firebase_url": "https://smspooler.firebaseio.com",
+    "project_id": "smspooler",
+    "storage_bucket": "smspooler.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:713671035185:android:c55f4eb93fd7e2c8",
+        "android_client_info": {
+          "package_name": "com.appbootup.smspooler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "713671035185-olmcqamf403vfccga6e04bpgglr2ou5g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appbootup.smspooler",
+            "certificate_hash": "85FD25B1479588BE837BF79077E27D2B981EC1A9"
+          }
+        },
+        {
+          "client_id": "713671035185-h9a510eig8slm6mi6gl00koe46iqd94o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUFM5_jLEJdpNpNYgB4vuXkgRcKYtiG3c"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "713671035185-h9a510eig8slm6mi6gl00koe46iqd94o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

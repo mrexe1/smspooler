@@ -1,4 +1,4 @@
-package com.appbootup.smspooler.util;
+package com.appbootup.smspooler.sms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
